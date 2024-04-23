@@ -41,7 +41,7 @@ app.post('/api/login', (req, res) => {
     const token = jwt.sign({ username }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     })
-    res.cookie('token', token, { httpOnly: true, secure: !process.env.LOCAL })
+    res.cookie('token', token, { httpOnly: true, secure: true })
     res.send({ message: 'Logged in successfully!', token })
   } else {
     res.status(401).send('Unauthorized')
