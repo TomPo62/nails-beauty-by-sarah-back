@@ -68,10 +68,8 @@ app.use('/api/services', servicesRoutes)
 app.use('/api/clients', clientsRoutes)
 app.use('/api/appointments', appointmentsRoutes)
 
-if (process.env.LOCAL) {
-  app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`)
-  })
-} else {
-  module.exports = serverless(app)
-}
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`)
+})
+
+module.exports = serverless(app)
