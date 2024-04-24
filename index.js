@@ -2,7 +2,7 @@ require('dotenv').config()
 const serverless = require('serverless-http')
 const express = require('express')
 const mongoose = require('mongoose')
-
+const bodyParser = require('body-parser');
 const helmet = require('helmet')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
@@ -24,6 +24,7 @@ app.use(express.json())
 app.use(helmet())
 app.use(cors({ credentials: true, origin: true }))
 app.use(cookieParser())
+app.use(bodyParser.json({ limit: '10mb' }));
 
 app.use(
   expressjwt({
