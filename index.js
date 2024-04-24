@@ -16,23 +16,8 @@ const appointmentsRoutes = require('./src/routes/appointmentsRoutes')
 
 const uri = process.env.MONGO_URI
 let cachedDb = null
-
-const PORT = process.env.PORT || 3000
-
-async function connectToDb(uri) {
-  if (cachedDb) {
-    console.log('Using cached database.')
-    return cachedDb
-  }
-  const db = await mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  cachedDb = db
-  return db
-}
-
 const app = express()
+const PORT = process.env.PORT || 3000
 
 // Middleware
 app.use(express.json())
@@ -56,6 +41,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(`Error processing request: ${err}`)
   res.status(500).send('An internal error occurred')
+  next(err);
 })
 
 app.post('/api/login', (req, res) => {
@@ -78,7 +64,18 @@ app.get('/api/logout', (req, res) => {
   res.clearCookie('token')
   res.send({ message: 'Logged out successfully!' })
 })
-
+async function connectToDb(uri) {
+  if (cachedDb) {
+    console.log('Using cached database.')
+    return cachedDb
+  }
+  const db = await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  cachedDb = db
+  return db
+}
 exports.handler = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false
 
