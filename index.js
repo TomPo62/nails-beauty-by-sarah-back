@@ -14,10 +14,7 @@ const clientsRoutes = require('./src/routes/clientsRoutes')
 const appointmentsRoutes = require('./src/routes/appointmentsRoutes')
 
 const uri = process.env.MONGO_URI
-mongoose.connect(uri, {useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
-  socketTimeoutMS: 45000,}).then(() => {
+mongoose.connect(uri).then(() => {
   console.log('Successfully connected to MongoDB');
 }).catch(error => {
   console.error('Failed to connect to MongoDB', error);
