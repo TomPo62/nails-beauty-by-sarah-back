@@ -33,8 +33,19 @@ app.use(
     secret: process.env.JWT_SECRET,
     algorithms: ['HS256'],
     getToken: (req) => req.cookies.token,
-  }).unless({ path: ['/api/login'] })
+  }).unless({ path: ['/api/login', '/'] })
 )
+
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} - ${req.path}`);
+  next();
+});
+
+app.use((err, req, res, next) => {
+  console.error(`Error processing request ${err}`);
+  res.status(500).send('An internal error occurred');
+  next()
+});
 
 app.post('/api/login', (req, res) => {
   const { username, pwd } = req.body
