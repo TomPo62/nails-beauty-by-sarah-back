@@ -32,7 +32,7 @@ app.use(
     secret: jwtToken,
     algorithms: ['HS256'],
     getToken: (req) => req.cookies.token,
-  }).unless({ path: ['/api/login'] })
+  }).unless({ path: ['/api/login', '/api/logout'] })
 )
 
 app.post('/api/login', (req, res) => {
