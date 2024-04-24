@@ -14,7 +14,11 @@ const clientsRoutes = require('./src/routes/clientsRoutes')
 const appointmentsRoutes = require('./src/routes/appointmentsRoutes')
 
 const uri = process.env.MONGO_URI
-mongoose.connect(uri)
+mongoose.connect(uri).then(() => {
+  console.log('Successfully connected to MongoDB');
+}).catch(error => {
+  console.error('Failed to connect to MongoDB', error);
+});
 const app = express()
 const PORT = process.env.PORT || 3000
 
