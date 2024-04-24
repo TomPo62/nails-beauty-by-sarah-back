@@ -2,6 +2,7 @@ require('dotenv').config()
 const serverless = require('serverless-http')
 const express = require('express')
 const mongoose = require('mongoose')
+
 const helmet = require('helmet')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
@@ -14,13 +15,24 @@ const clientsRoutes = require('./src/routes/clientsRoutes')
 const appointmentsRoutes = require('./src/routes/appointmentsRoutes')
 
 const uri = process.env.MONGO_URI
-mongoose.connect(uri).then(() => {
-  console.log('Successfully connected to MongoDB');
-}).catch(error => {
-  console.error('Failed to connect to MongoDB', error);
-});
-const app = express()
+let cachedDb = null
+
 const PORT = process.env.PORT || 3000
+
+async function connectToDb(uri) {
+  if (cachedDb) {
+    console.log('Using cached database.')
+    return cachedDb
+  }
+  const db = await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  cachedDb = db
+  return db
+}
+
+const app = express()
 
 // Middleware
 app.use(express.json())
@@ -33,19 +45,18 @@ app.use(
     secret: process.env.JWT_SECRET,
     algorithms: ['HS256'],
     getToken: (req) => req.cookies.token,
-  }).unless({ path: ['/api/login', '/'] })
+  }).unless({ path: ['/api/login', '/api/logout', '/'] })
 )
 
 app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} - ${req.path}`);
-  next();
-});
+  console.log(`Incoming request: ${req.method} - ${req.path}`)
+  next()
+})
 
 app.use((err, req, res, next) => {
-  console.error(`Error processing request ${err}`);
-  res.status(500).send('An internal error occurred');
-  next()
-});
+  console.error(`Error processing request: ${err}`)
+  res.status(500).send('An internal error occurred')
+})
 
 app.post('/api/login', (req, res) => {
   const { username, pwd } = req.body
@@ -68,20 +79,28 @@ app.get('/api/logout', (req, res) => {
   res.send({ message: 'Logged out successfully!' })
 })
 
-// Configuration de la base de données
-const db = mongoose.connection
-db.on('error', (error) => {
-  console.error('Failed to connect to MongoDB', error)
-  process.exit(1)
-})
-db.once('open', () => {
-  console.log('Successfully connected to MongoDB using Mongoose!')
-})
+exports.handler = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false
 
-app.use('/api/materials', materialsRoutes)
-app.use('/api/services', servicesRoutes)
-app.use('/api/clients', clientsRoutes)
-app.use('/api/appointments', appointmentsRoutes)
+  try {
+    await connectToDb(uri)
+    console.log('Successfully connected to MongoDB')
+
+    // Load routes only after the DB connection is successful
+    app.use('/api/materials', materialsRoutes)
+    app.use('/api/services', servicesRoutes)
+    app.use('/api/clients', clientsRoutes)
+    app.use('/api/appointments', appointmentsRoutes)
+
+    return serverless(app)(event, context)
+  } catch (error) {
+    console.error('Failed to connect to MongoDB', error)
+    return {
+      statusCode: 500,
+      body: 'Internal Server Error: Could not connect to database',
+    }
+  }
+}
 
 // app.listen(PORT, () => {
 //   console.log(`Server listening on port ${PORT}`)
