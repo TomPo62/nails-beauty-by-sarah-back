@@ -1,6 +1,6 @@
 require('dotenv').config()
 const express = require('express')
-const cookieParser = require('cookie-parser')
+// const cookieParser = require('cookie-parser')
 const connectToDb = require('./config/db')
 const getJwtMiddleware = require('./middleware/authMiddleware')
 const authRoutes = require('./routes/authRoutes')
@@ -16,10 +16,10 @@ app.use(express.json())
 // Connect to DB and initialize routes only once at startup
 connectToDb()
 
-app.use(cookieParser())
-app.use(getJwtMiddleware(jwtSecret))
+// app.use(cookieParser())
+// app.use(getJwtMiddleware(jwtSecret))
 
-app.use('/api', authRoutes)
+// app.use('/api', authRoutes)
 app.use('/api/materials', materialsRoutes)
 app.use('/api/services', servicesRoutes)
 app.use('/api/clients', clientsRoutes)
