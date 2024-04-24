@@ -1,17 +1,19 @@
 const mongoose = require('mongoose');
-let cachedDb = null;
+
+global.cachedDb = global.cachedDb || null;  // Utilisez une variable globale pour stocker la connexion
 
 async function connectToDb(uri) {
-  if (cachedDb) {
+  if (global.cachedDb) {
     console.log('Using cached database connection.');
-    return cachedDb;
+    return global.cachedDb;  // Retourne la connexion mise en cache
   }
+
   console.log('Creating new database connection...');
   const db = await mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    bufferCommands: false,
   });
-  cachedDb = db;
+
+  global.cachedDb = db;
   console.log('Database connected successfully.');
   return db;
 }
