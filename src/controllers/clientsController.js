@@ -1,20 +1,20 @@
-const Client = require('../models/client');
+const Client = require('../models/client')
 
 exports.createClient = async (req, res) => {
-  const client = new Client(req.body);
+  const client = new Client(req.body)
   try {
-    await client.save();
-    res.status(201).send(client);
-  } catch (error) {
-    res.status(400).send(error);
+    await client.save()
+    res.status(201).send(client)
+  } catch (err) {
+    res.status(400).send(err)
   }
-};
+}
 
 exports.getAllClients = async (req, res) => {
   try {
-    const clients = await Client.find();
-    res.send(clients);
-  } catch (error) {
-    res.status(500).send(error);
+    const clients = await Client.find()
+    res.send(clients)
+  } catch (err) {
+    res.status(500).send(err)
   }
-};
+}

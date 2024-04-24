@@ -36,8 +36,8 @@ exports.createMaterial = async (req, res) => {
     const material = new Material({ name, costPerUnit, unit, quantity, description });
     await material.save();
     res.status(201).send(material);
-  } catch (error) {
-    res.status(400).send(error);
+  } catch (err) {
+    res.status(400).send(err);
   }
 };
 
@@ -45,8 +45,8 @@ exports.getAllMaterials = async (req, res) => {
   try {
     const materials = await Material.find({});
     res.send(materials);
-  } catch (error) {
-    res.status(500).send(error);
+  } catch (err) {
+    res.status(500).send(err);
   }
 };
 
@@ -62,7 +62,19 @@ exports.updateMaterial = async (req, res) => {
       return res.status(404).send();
     }
     res.send(material);
-  } catch (error) {
-    res.status(400).send(error);
+  } catch (err) {
+    res.status(400).send(err);
   }
 };
+
+exports.getMaterialById = async (req, res)=>{
+try {
+  const material = await Material.findById(req.params.id)
+  if (!material){
+    return res.status(404).send()
+  }
+  res.send(material)
+} catch(err){
+  res.status(400).send(err)
+}
+}

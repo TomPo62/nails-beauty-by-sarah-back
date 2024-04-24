@@ -1,12 +1,17 @@
 const jwt = require('jsonwebtoken')
+const userOne = process.env.USER_ONE
+const userTwo = process.env.USER_TWO
+const pwdUserOne = process.env.PWD_USER_ONE
+const pwdUserTwo = process.env.PWD_USER_TWO
+const jwtSecret =process.env.JWT_SECRET
 
 exports.login = (req, res) => {
   const { username, pwd } = req.body
   if (
-    (username === process.env.USER_ONE && pwd === process.env.PWD_USER_ONE) ||
-    (username === process.env.USER_TWO && pwd === process.env.PWD_USER_TWO)
+    (username === userOne && pwd === pwdUserOne) ||
+    (username === userTwo && pwd === pwdUserTwo)
   ) {
-    const token = jwt.sign({ username }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ username }, jwtSecret, {
       expiresIn: '1d',
     })
     res.cookie('token', token, { httpOnly: true, secure: true })

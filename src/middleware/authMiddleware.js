@@ -1,8 +1,8 @@
 const { expressjwt } = require('express-jwt');
 
-function getJwtMiddleware(jwtToken) {
+function getJwtMiddleware(jwtSecretToken) {
   return expressjwt({
-    secret: jwtToken,
+    secret: jwtSecretToken,
     algorithms: ['HS256'],
     getToken: (req) => req.cookies.token,
   }).unless({ path: ['/api/login', '/api/logout'] });
