@@ -1,6 +1,5 @@
 require('dotenv').config()
 const express = require('express')
-const helmet = require('helmet')
 const cookieParser = require('cookie-parser')
 const connectToDb = require('./config/db')
 const getJwtMiddleware = require('./middleware/authMiddleware')
@@ -16,7 +15,7 @@ const app = express()
 app.use(express.json())
 // Connect to DB and initialize routes only once at startup
 connectToDb()
-app.use(helmet())
+
 app.use(cookieParser())
 app.use(getJwtMiddleware(jwtSecret))
 
