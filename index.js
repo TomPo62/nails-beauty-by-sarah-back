@@ -2,7 +2,7 @@ require('dotenv').config()
 const serverless = require('serverless-http')
 const express = require('express')
 const mongoose = require('mongoose')
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
 const helmet = require('helmet')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
@@ -24,7 +24,7 @@ app.use(express.json())
 app.use(helmet())
 app.use(cors({ credentials: true, origin: true }))
 app.use(cookieParser())
-app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.json({ limit: '30mb' }))
 
 app.use(
   expressjwt({
@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(`Error processing request: ${err}`)
   res.status(500).send('An internal error occurred')
-  next(err);
+  next(err)
 })
 
 app.post('/api/login', (req, res) => {
