@@ -8,10 +8,10 @@ const jwt = require('jsonwebtoken')
 const { expressjwt } = require('express-jwt')
 const cookieParser = require('cookie-parser')
 
-const servicesRoutes = require('./routes/servicesRoutes')
-const materialsRoutes = require('./routes/materialsRoutes')
-const clientsRoutes = require('./routes/clientsRoutes')
-const appointmentsRoutes = require('./routes/appointmentsRoutes')
+const servicesRoutes = require('./src/routes/servicesRoutes')
+const materialsRoutes = require('./src/routes/materialsRoutes')
+const clientsRoutes = require('./src/routes/clientsRoutes')
+const appointmentsRoutes = require('./src/routes/appointmentsRoutes')
 
 const uri = process.env.MONGO_URI
 mongoose.connect(uri)
