@@ -16,6 +16,10 @@
       "status": 404
     },
     {
+      "src": "/favicon.png",
+      "status": 404
+    },
+    {
       "src": "/(.*)",
       "dest": "/src/server.js"
     }
