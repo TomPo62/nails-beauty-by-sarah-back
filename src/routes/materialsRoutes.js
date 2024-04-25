@@ -8,6 +8,7 @@ router.post(
   materialsController.createMaterial
 )
 router.get('/', materialsController.getAllMaterials)
+
 router.put(
   '/:id',
   materialsController.validate('updateMaterial'),
