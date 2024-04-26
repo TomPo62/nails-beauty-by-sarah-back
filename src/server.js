@@ -16,7 +16,11 @@ const app = express()
 
 app.use(helmet())
 
-app.use(cors())
+app.use(cors({
+  origin: process.env.DOMAIN,
+  credentials: true
+}));
+
 
 app.use(bodyParser.json())
 connectToDb()
@@ -29,7 +33,6 @@ app.use((err, req, res, next) => {
 
 app.use(cookieParser())
 app.use(getJwtMiddleware(jwtSecret))
-app.use(helmet)
 app.use('/api', authRoutes)
 app.use('/api/materials', materialsRoutes)
 app.use('/api/services', servicesRoutes)
