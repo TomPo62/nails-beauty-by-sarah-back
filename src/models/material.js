@@ -1,13 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
 const materialSchema = new mongoose.Schema({
-  name: String,
-  costPerUnit: Number,
-  unit: String,
-  quantity: Number,
-  description: String
-});
+  name: { type: String, required: true, unique: true },
+  costPerUnit: { type: Number, min: 0, required: true },
+  unit: { type: String, required: true },
+  quantity: { type: Number, min: 0, required: true },
+  description: { type: String, trim: true },
+})
 
-const Material = mongoose.model('Material', materialSchema);
+materialSchema.plugin(mongoosePaginate)
 
-module.exports = Material;
+
+module.exports = mongoose.model('Material', materialSchema)

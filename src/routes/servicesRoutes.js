@@ -1,18 +1,22 @@
 const express = require('express')
 const servicesController = require('../controllers/servicesController')
+const {validateServiceCreation, validateServiceUpdate} = require('../validation/servicesValidate')
 const router = express.Router()
 
 router.post(
   '/',
-  servicesController.validate('createService'),
+  validateServiceCreation,
   servicesController.createService
 )
-router.get('/', servicesController.getAllServices)
-router.get('/:id', servicesController.getService)
+
 router.put(
   '/:id',
-  servicesController.validate('updateService'),
+  validateServiceUpdate,
   servicesController.updateService
 )
+
+router.get('/', servicesController.getAllServices)
+router.get('/:id', servicesController.getServiceById)
+
 
 module.exports = router

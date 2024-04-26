@@ -1,80 +1,97 @@
-const Material = require('../models/material');
-const { validationResult, body } = require('express-validator');
-
-// Validation and sanitization rules as middleware
-exports.validate = (method) => {
-  switch (method) {
-    case 'createMaterial': {
-      return [
-        body('name', 'Name is required').notEmpty().trim().escape(),
-        body('costPerUnit', 'Cost per unit must be a number').isNumeric(),
-        body('unit', 'Unit is required').notEmpty().trim().escape(),
-        body('quantity', 'Quantity must be a non-negative integer').isInt({ min: 0 }),
-        body('description', 'Description must not exceed 500 characters').optional().isLength({ max: 500 }).trim().escape()
-      ];
-    }
-    case 'updateMaterial': {
-      return [
-        body('name').optional().trim().escape(),
-        body('costPerUnit').optional().isNumeric(),
-        body('unit').optional().trim().escape(),
-        body('quantity').optional().isInt({ min: 0 }),
-        body('description').optional().isLength({ max: 500 }).trim().escape()
-      ];
-    }
-  }
-};
+const Material = require('../models/material')
+const { validationResult } = require('express-validator')
 
 exports.createMaterial = async (req, res) => {
-  const errors = validationResult(req);
+  const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ errors: errors.array() })
   }
 
   try {
-    const { name, costPerUnit, unit, quantity, description } = req.body;
-    const material = new Material({ name, costPerUnit, unit, quantity, description });
-    await material.save();
-    res.status(201).send(material);
+    const { name, costPerUnit, unit, quantity, description } = req.body
+    const material = new Material({
+      name,
+      costPerUnit,
+      unit,
+      quantity,
+      description,
+    })
+    await material.save()
+    res.status(201).send(material)
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send(err)
   }
-};
+}
 
 exports.getAllMaterials = async (req, res) => {
-  try {
-    const materials = await Material.find({});
-    res.send(materials);
-  } catch (err) {
-    res.status(500).send(err);
+  const {
+    page = 1,
+    limit = 10,
+    sortBy = 'name',
+    order = 'asc',
+    name,
+    unit,
+    description,
+    minCost,
+    maxCost,
+  } = req.query
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { [sortBy]: order === 'asc' ? 1 : -1 },
+    populate: [],
   }
-};
+
+  const filterOptions = {}
+  if (name) filterOptions.name = new RegExp(name, 'i')
+  if (unit) filterOptions.unit = unit
+  if (description) filterOptions.description = new RegExp(description, 'i')
+  if (minCost) filterOptions.costPerUnit = { $gte: parseFloat(minCost) }
+  if (maxCost)
+    filterOptions.costPerUnit = {
+      ...filterOptions.costPerUnit,
+      $lte: parseFloat(maxCost),
+    }
+
+  try {
+    const result = await Material.paginate(filterOptions, options)
+    res.status(200).json(result)
+  } catch (err) {
+    res
+      .status(500)
+      .send({ message: 'Error accessing the materials', error: err.message })
+  }
+}
 
 exports.updateMaterial = async (req, res) => {
-  const errors = validationResult(req);
+  const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ errors: errors.array() })
   }
 
   try {
-    const material = await Material.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const material = await Material.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    })
     if (!material) {
-      return res.status(404).send();
+      return res.status(404).send()
     }
-    res.send(material);
+    res.send(material)
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send(err)
   }
-};
-
-exports.getMaterialById = async (req, res)=>{
-try {
-  const material = await Material.findById(req.params.id)
-  if (!material){
-    return res.status(404).send()
-  }
-  res.send(material)
-} catch(err){
-  res.status(400).send(err)
 }
+
+exports.getMaterialById = async (req, res) => {
+  try {
+    const material = await Material.findById(req.params.id)
+    if (!material) {
+      return res.status(404).send()
+    }
+    res.send(material)
+  } catch (err) {
+    res.status(400).send(err)
+  }
 }

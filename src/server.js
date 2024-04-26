@@ -15,6 +15,11 @@ const app = express()
 app.use(bodyParser.json())
 connectToDb()
 
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send({ error: 'Something broke!' })
+  next()
+})
 
 app.use(cookieParser())
 app.use(getJwtMiddleware(jwtSecret))

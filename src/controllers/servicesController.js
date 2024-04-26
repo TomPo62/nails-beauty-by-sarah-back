@@ -1,35 +1,11 @@
 const Service = require('../models/service')
 
-const { validationResult, body } = require('express-validator')
-
-exports.validate = (method) => {
-  switch (method) {
-    case 'createService':
-    case 'updateService': {
-      return [
-        body('name').notEmpty().withMessage('Name is required'),
-        body('description').optional().trim(),
-        body('basePrice')
-          .isFloat({ min: 0 })
-          .withMessage('Base price must be a positive number'),
-        body('materials.*.material')
-          .notEmpty()
-          .withMessage('Material ID is required'),
-        body('materials.*.quantity')
-          .isInt({ min: 1 })
-          .withMessage('Quantity must be at least 1'),
-        body('duration').optional().isFloat({ min: 0 }),
-        body('hourlyRate').optional().isFloat({ min: 0 }),
-        body('discountRate').optional().isFloat({ min: 0, max: 100 }),
-      ]
-    }
-  }
-}
+const { validationResult } = require('express-validator')
 
 exports.createService = async (req, res) => {
-  const errs = validationResult(req)
-  if (!errs.isEmpty()) {
-    return res.status(400).json({ errs: errs.array() })
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
   }
   const service = new Service(req.body)
   try {
@@ -41,15 +17,33 @@ exports.createService = async (req, res) => {
 }
 
 exports.getAllServices = async (req, res) => {
+  const { page = 1, limit = 10, name, minPrice, maxPrice } = req.query
+
+  const options = {
+    page,
+    limit,
+    populate: 'materials.material',
+    sort: { name: 1 },
+  }
+
+  const query = {}
+  if (name) query.name = { $regex: name, $options: 'i' }
+  if (minPrice)
+    query.basePrice = { ...query.basePrice, $gte: parseFloat(minPrice) }
+  if (maxPrice)
+    query.basePrice = { ...query.basePrice, $lte: parseFloat(maxPrice) }
+
   try {
-    const services = await Service.find().populate('materials.material')
-    res.send(services)
+    const result = await Service.paginate(query, options)
+    res.json(result)
   } catch (err) {
-    res.status(500).send(err)
+    res
+      .status(500)
+      .json({ message: 'Error retrieving services', error: err.message })
   }
 }
 
-exports.getService = async (req, res) => {
+exports.getServiceById = async (req, res) => {
   try {
     const service = await Service.findById(req.params.id).populate(
       'materials.material'

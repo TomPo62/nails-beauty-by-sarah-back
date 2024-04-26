@@ -3,18 +3,20 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node --watch src/server.js",
     "build": "echo 'No build needed for this project'"
   },
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-validator": "^7.0.1",
-    "mongoose": "^8.3.2",
-    "cookie-parser": "^1.4.6",
     "express-jwt": "^8.4.1",
-    "jsonwebtoken": "^9.0.2"
+    "express-validator": "^7.0.1",
+    "he": "^1.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.2",
+    "mongoose-paginate-v2": "^1.8.0"
   }
 }

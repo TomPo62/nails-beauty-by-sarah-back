@@ -1,18 +1,21 @@
 const express = require('express')
 const router = express.Router()
+const {validateMaterialCreation, validateMaterialUpdate } = require('../validation/materialsValidate')
 const materialsController = require('../controllers/materialsController')
 
 router.post(
   '/',
-  materialsController.validate('createMaterial'),
+  validateMaterialCreation,
   materialsController.createMaterial
 )
-router.get('/', materialsController.getAllMaterials)
-
 router.put(
   '/:id',
-  materialsController.validate('updateMaterial'),
+ validateMaterialUpdate,
   materialsController.updateMaterial
 )
+
+router.get('/', materialsController.getAllMaterials)
+router.get('/:id', materialsController.getMaterialById)
+
 
 module.exports = router
