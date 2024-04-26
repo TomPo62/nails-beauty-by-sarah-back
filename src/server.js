@@ -10,7 +10,13 @@ const servicesRoutes = require('./routes/servicesRoutes')
 const clientsRoutes = require('./routes/clientsRoutes')
 const appointmentsRoutes = require('./routes/appointmentsRoutes')
 const jwtSecret = process.env.JWT_SECRET
+const cors = require('cors')
+const helmet = require('helmet')
 const app = express()
+
+app.use(helmet())
+
+app.use(cors())
 
 app.use(bodyParser.json())
 connectToDb()
@@ -23,6 +29,7 @@ app.use((err, req, res, next) => {
 
 app.use(cookieParser())
 app.use(getJwtMiddleware(jwtSecret))
+app.use(helmet)
 app.use('/api', authRoutes)
 app.use('/api/materials', materialsRoutes)
 app.use('/api/services', servicesRoutes)
