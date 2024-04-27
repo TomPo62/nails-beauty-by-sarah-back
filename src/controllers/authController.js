@@ -11,10 +11,7 @@ exports.login = (req, res) => {
     (username === userOne && pwd === pwdUserOne) ||
     (username === userTwo && pwd === pwdUserTwo)
   ) {
-    const token = jwt.sign({ username }, jwtSecret, {
-      expiresIn: '1d',
-    })
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None', expires: new Date(Date.now() + 864000000) })
+    const token = jwt.sign({username}, jwtSecret, { expiresIn: '1d'})
     res.status(200).send({ message: 'Logged in successfully!', token })
   } else {
     res.status(401).send('Unauthorized')
