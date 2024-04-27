@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node --watch src/server.js",
+    "start": "node src/server.js",
     "build": "echo 'No build needed for this project'"
   },
   "license": "MIT",
