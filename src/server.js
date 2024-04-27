@@ -18,7 +18,7 @@ app.use(helmet())
 
 app.use(cors({
   origin: function(origin, callback) {
-    const allowedOrigins = ['http://localhost:5173', 'https://nails-beauty-by-sarah-back.vercel.app'];
+    const allowedOrigins = ['https://localhost:5173', 'https://nails-beauty-by-sarah-back.vercel.app'];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
