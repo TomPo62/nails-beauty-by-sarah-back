@@ -14,7 +14,7 @@ exports.login = (req, res) => {
     const token = jwt.sign({ username }, jwtSecret, {
       expiresIn: '1d',
     })
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' })
+    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None', expires: new Date(Date.now() + 864000000) })
     res.status(200).send({ message: 'Logged in successfully!', token })
   } else {
     res.status(401).send('Unauthorized')
