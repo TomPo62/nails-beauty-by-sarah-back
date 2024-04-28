@@ -68,30 +68,42 @@ exports.updateClient = async (req, res) => {
 }
 
 exports.getAllClients = async (req, res) => {
-  const { page = 1, limit = 10, name, nearestDate } = req.query
+  const { page = 1, limit = 10, name, nearestDate } = req.query;
+  let conditions = {};
+  let dateFilter = {};
+
+  if (name) {
+    conditions.name = { $regex: new RegExp(name, "i") };
+  }
+  if (nearestDate) {
+    dateFilter['history.date'] = { $gte: new Date(nearestDate) };
+  }
+
   const options = {
     page,
     limit,
-    populate: {
-      path: 'history',
-      match: nearestDate ? { date: { $gte: new Date(nearestDate) } } : {},
-      populate: { path: 'service' },
-    },
-  }
-
-  const query = {}
-  if (name) query.name = { $regex: name, $options: 'i' }
+    populate: [
+      {
+        path: 'history',
+        match: dateFilter,
+        populate: { path: 'service' },
+        options: { sort: { date: 1 } }
+      }
+    ],
+    sort: { 'history.date': 1 }
+  };
 
   try {
-    const result = await Client.paginate(query, options)
-    res.json(result)
+    const result = await Client.paginate(conditions, options);
+    res.json(result);
   } catch (err) {
     res.status(500).send({
       message: 'Error retrieving clients',
       error: err.message,
-    })
+    });
   }
-}
+};
+
 
 exports.getClientById = async (req, res) => {
   try {
