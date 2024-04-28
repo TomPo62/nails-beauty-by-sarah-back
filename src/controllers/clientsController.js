@@ -68,43 +68,42 @@ exports.updateClient = async (req, res) => {
 }
 
 exports.getAllClients = async (req, res) => {
-  const { page = 1, limit = 10, name, nearestDate } = req.query;
-  let conditions = {};
-
-  if (name) {
-    conditions.name = { $regex: name, $options: 'i' };
-  }
+  const { page = 1, limit = 10, name, nearestDate } = req.query
 
   try {
-    let aggregateQuery = Client.aggregate([
-      { $match: conditions },
-      { $lookup: {
-          from: "appointments",
-          localField: "history",
-          foreignField: "_id",
-          as: "appointments"
-        }
+    let matchQuery = {}
+    if (name) {
+      matchQuery['name'] = { $regex: name, $options: 'i' }
+    }
+
+    let dateMatch = {}
+    if (nearestDate) {
+      dateMatch['history.date'] = { $gte: new Date(nearestDate) }
+    }
+
+    let aggregateQuery = [
+      { $match: matchQuery },
+      {
+        $lookup: {
+          from: 'appointments',
+          localField: 'history',
+          foreignField: '_id',
+          as: 'appointmentDetails',
+        },
       },
-      { $unwind: { path: "$appointments", preserveNullAndEmptyArrays: true } },
-      { $sort: { "appointments.date": 1 } },
+      { $unwind: '$appointmentDetails' },
+      { $match: dateMatch },
+      { $sort: { 'appointmentDetails.date': 1 } },
       {
         $group: {
-          _id: "$_id",
-          name: { $first: "$name" },
-          contact: { $first: "$contact" },
-          preferences: { $first: "$preferences" },
-          history: { $push: "$appointments" }
-        }
-      }
-    ]);
-
-    if (nearestDate) {
-      aggregateQuery.splice(1, 0, {
-        $match: {
-          "appointments.date": { $gte: new Date(nearestDate) }
-        }
-      });
-    }
+          _id: '$_id',
+          name: { $first: '$name' },
+          contact: { $first: '$contact' },
+          preferences: { $first: '$preferences' },
+          history: { $push: '$appointmentDetails' },
+        },
+      },
+    ]
 
     const options = {
       page,
@@ -112,26 +111,27 @@ exports.getAllClients = async (req, res) => {
       customLabels: {
         totalDocs: 'total',
         docs: 'clients',
-        totalPages: 'pages'
-      }
-    };
+        totalPages: 'pages',
+      },
+    }
 
-    Client.aggregatePaginate(aggregateQuery, options).then((result) => {
-      res.json(result);
-    }).catch((err) => {
-      res.status(500).send({
-        message: 'Error retrieving clients',
-        error: err.message,
-      });
-    });
-
+    Client.aggregatePaginate(aggregateQuery, options)
+      .then((result) => {
+        res.json(result)
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: 'Error retrieving clients',
+          error: err.message,
+        })
+      })
   } catch (err) {
     res.status(500).send({
       message: 'Error processing request',
       error: err.message,
-    });
+    })
   }
-};
+}
 
 exports.getClientById = async (req, res) => {
   try {
