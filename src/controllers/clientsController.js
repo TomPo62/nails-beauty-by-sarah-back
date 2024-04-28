@@ -68,39 +68,70 @@ exports.updateClient = async (req, res) => {
 }
 
 exports.getAllClients = async (req, res) => {
-  const { page = 1, limit = 10, name, nearestDate } = req.query
-  let match = {}
-  if (nearestDate) {
-    match.date = { $gte: new Date(nearestDate) }
-  }
+  const { page = 1, limit = 10, name, nearestDate } = req.query;
+  let conditions = {};
 
-  const options = {
-    page,
-    limit,
-    populate: {
-      path: 'history',
-      match: match,
-      options: { sort: { date: 1 } },
-      populate: { path: 'service' },
-    },
-    sort: { 'history.date': 1 },
-  }
-
-  const query = {}
   if (name) {
-    query.name = { $regex: name, $options: 'i' }
+    conditions.name = { $regex: name, $options: 'i' };
   }
 
   try {
-    const result = await Client.paginate(query, options)
-    res.json(result)
+    let aggregateQuery = Client.aggregate([
+      { $match: conditions },
+      { $lookup: {
+          from: "appointments",
+          localField: "history",
+          foreignField: "_id",
+          as: "appointments"
+        }
+      },
+      { $unwind: { path: "$appointments", preserveNullAndEmptyArrays: true } },
+      { $sort: { "appointments.date": 1 } },
+      {
+        $group: {
+          _id: "$_id",
+          name: { $first: "$name" },
+          contact: { $first: "$contact" },
+          preferences: { $first: "$preferences" },
+          history: { $push: "$appointments" }
+        }
+      }
+    ]);
+
+    if (nearestDate) {
+      aggregateQuery.splice(1, 0, {
+        $match: {
+          "appointments.date": { $gte: new Date(nearestDate) }
+        }
+      });
+    }
+
+    const options = {
+      page,
+      limit,
+      customLabels: {
+        totalDocs: 'total',
+        docs: 'clients',
+        totalPages: 'pages'
+      }
+    };
+
+    Client.aggregatePaginate(aggregateQuery, options).then((result) => {
+      res.json(result);
+    }).catch((err) => {
+      res.status(500).send({
+        message: 'Error retrieving clients',
+        error: err.message,
+      });
+    });
+
   } catch (err) {
     res.status(500).send({
-      message: 'Error retrieving clients',
+      message: 'Error processing request',
       error: err.message,
-    })
+    });
   }
-}
+};
 
 exports.getClientById = async (req, res) => {
   try {
