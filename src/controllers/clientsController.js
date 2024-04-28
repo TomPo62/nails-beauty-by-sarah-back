@@ -51,7 +51,7 @@ exports.updateClient = async (req, res) => {
     }
 
     // Update other modifiable fields from updateData
-    ;['name', 'preferences', 'history'].forEach((field) => {
+    ['name', 'preferences', 'history'].forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(updateData, field)) {
         client[field] = updateData[field]
       }
@@ -69,65 +69,25 @@ exports.updateClient = async (req, res) => {
 
 exports.getAllClients = async (req, res) => {
   const { page = 1, limit = 10, name, nearestDate } = req.query
+  const options = {
+    page,
+    limit,
+    populate: {
+      path: 'history',
+      match: nearestDate ? { date: { $gte: new Date(nearestDate) } } : {},
+      populate: { path: 'service' },
+    },
+  }
+
+  const query = {}
+  if (name) query.name = { $regex: name, $options: 'i' }
 
   try {
-    let matchQuery = {}
-    if (name) {
-      matchQuery['name'] = { $regex: name, $options: 'i' }
-    }
-
-    let dateMatch = {}
-    if (nearestDate) {
-      dateMatch['history.date'] = { $gte: new Date(nearestDate) }
-    }
-
-    let aggregateQuery = [
-      { $match: matchQuery },
-      {
-        $lookup: {
-          from: 'appointments',
-          localField: 'history',
-          foreignField: '_id',
-          as: 'appointmentDetails',
-        },
-      },
-      { $unwind: '$appointmentDetails' },
-      { $match: dateMatch },
-      { $sort: { 'appointmentDetails.date': 1 } },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          contact: { $first: '$contact' },
-          preferences: { $first: '$preferences' },
-          history: { $push: '$appointmentDetails' },
-        },
-      },
-    ]
-
-    const options = {
-      page,
-      limit,
-      customLabels: {
-        totalDocs: 'total',
-        docs: 'clients',
-        totalPages: 'pages',
-      },
-    }
-
-    Client.aggregatePaginate(aggregateQuery, options)
-      .then((result) => {
-        res.json(result)
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: 'Error retrieving clients',
-          error: err.message,
-        })
-      })
+    const result = await Client.paginate(query, options)
+    res.json(result)
   } catch (err) {
     res.status(500).send({
-      message: 'Error processing request',
+      message: 'Error retrieving clients',
       error: err.message,
     })
   }
