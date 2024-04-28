@@ -19,8 +19,6 @@ exports.login = (req, res) => {
 }
 
 exports.logout = (req, res) => {
-  res.cookie('token', '', { expires: new Date(0), httpOnly:true, secure:true, path:'/', sameSite: 'None' });
-  res.clearCookie('token');
-  res.send({ message: 'Logged out successfully!' });
+  res.send({message: 'Logged out successfully!'})
 };
 
