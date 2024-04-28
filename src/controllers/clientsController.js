@@ -51,7 +51,7 @@ exports.updateClient = async (req, res) => {
     }
 
     // Update other modifiable fields from updateData
-    ['name', 'preferences', 'history'].forEach((field) => {
+    ;['name', 'preferences', 'history'].forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(updateData, field)) {
         client[field] = updateData[field]
       }
@@ -69,18 +69,27 @@ exports.updateClient = async (req, res) => {
 
 exports.getAllClients = async (req, res) => {
   const { page = 1, limit = 10, name, nearestDate } = req.query
+  let match = {}
+  if (nearestDate) {
+    match.date = { $gte: new Date(nearestDate) }
+  }
+
   const options = {
     page,
     limit,
     populate: {
       path: 'history',
-      match: nearestDate ? { date: { $gte: new Date(nearestDate) } } : {},
+      match: match,
+      options: { sort: { date: 1 } },
       populate: { path: 'service' },
     },
+    sort: { 'history.date': 1 },
   }
 
   const query = {}
-  if (name) query.name = { $regex: name, $options: 'i' }
+  if (name) {
+    query.name = { $regex: name, $options: 'i' }
+  }
 
   try {
     const result = await Client.paginate(query, options)
