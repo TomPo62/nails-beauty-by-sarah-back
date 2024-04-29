@@ -13,6 +13,7 @@ router.put('/:id', validateClient('update'), clientsController.updateClient);
 
 router.get('/', clientsController.getAllClients)
 router.get('/:id', clientsController.getClientById)
+router.get('/recent', clientsController.getRecentClients)
 
 
 module.exports = router

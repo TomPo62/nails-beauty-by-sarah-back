@@ -51,7 +51,7 @@ exports.updateClient = async (req, res) => {
     }
 
     // Update other modifiable fields from updateData
-    ['name', 'preferences', 'history'].forEach((field) => {
+    ;['name', 'preferences', 'history'].forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(updateData, field)) {
         client[field] = updateData[field]
       }
@@ -89,6 +89,21 @@ exports.getAllClients = async (req, res) => {
     res.status(500).send({
       message: 'Error retrieving clients',
       error: err.message,
+    })
+  }
+}
+
+exports.getRecentClients = async (req, res) => {
+  const { daysPast = 7 } = req.query
+  const dateLimit = new Date(Date.now() - daysPast * 24 * 60 * 60 * 1000)
+
+  try {
+    const recentClients = await Client.find({createdAt: {$gte: dateLimit}})
+    res.status(200).json(recentClients)
+  } catch (err) {
+    res.status(500).json({
+      message: 'Error retireving recent clients',
+      error: err.message
     })
   }
 }

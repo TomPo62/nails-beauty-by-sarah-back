@@ -15,6 +15,8 @@ const clientSchema = new mongoose.Schema({
   contact: [contactSchema],
   preferences: [{ type: String }],
   history: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
+}, {
+  timestamps: true
 })
 
 clientSchema.plugin(mongoosePaginate)
