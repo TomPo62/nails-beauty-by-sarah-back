@@ -98,12 +98,20 @@ exports.getRecentClients = async (req, res) => {
   const dateLimit = new Date(Date.now() - daysPast * 24 * 60 * 60 * 1000)
 
   try {
-    const recentClients = await Client.find({createdAt: {$gte: dateLimit}})
+    const recentClients = await Client.find({ createdAt: { $gte: dateLimit } })
+
+    if (recentClients.length === 0) {
+      return res.status(404).json({
+        message: 'No recent clients found within the specified time frame.',
+      })
+    }
+
     res.status(200).json(recentClients)
   } catch (err) {
+    console.error(err)
     res.status(500).json({
-      message: 'Error retireving recent clients',
-      error: err.message
+      message: 'Error retrieving recent clients',
+      error: err.message,
     })
   }
 }
