@@ -24,46 +24,23 @@ exports.updateClient = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }
-
   const clientId = req.params.id
   const updateData = req.body
 
   try {
-    const client = await Client.findById(clientId)
+    const client = await Client.findByIdAndUpdate(clientId, updateData, {
+      new: true,
+      runValidators: true,
+    })
     if (!client) {
       return res.status(404).json({ message: 'Client not found' })
     }
 
-    // Update contact details if provided
-    if (updateData.contact) {
-      // Approach: Merge each updated contact into existing contacts or add new
-      const existingContacts = client.contact
-      const updatedContacts = updateData.contact.map((updated) => {
-        const existing = existingContacts.find(
-          (ec) =>
-            ec.email === updated.email || ec.numeroTel === updated.numeroTel
-        )
-        return existing ? { ...existing.toObject(), ...updated } : updated
-      })
-
-      // Assign the merged contacts back to the client object
-      client.contact = updatedContacts
-    }
-
-    // Update other modifiable fields from updateData
-    ;['name', 'preferences', 'history'].forEach((field) => {
-      if (Object.prototype.hasOwnProperty.call(updateData, field)) {
-        client[field] = updateData[field]
-      }
-    })
-
-    await client.save()
     res.status(200).json(client)
   } catch (err) {
-    res.status(400).json({
-      message: 'Error updating client',
-      errors: err.message || err,
-    })
+    res
+      .status(400)
+      .json({ message: 'Error updating client', errors: err.message || err })
   }
 }
 
@@ -94,30 +71,29 @@ exports.getAllClients = async (req, res) => {
 }
 
 exports.getRecentClients = async (req, res) => {
-  console.log('Fetching recent clients...');
-  const { daysPast = 7 } = req.query;
-  const dateLimit = new Date(Date.now() - daysPast * 24 * 60 * 60 * 1000);
-  console.log(`Date limit set to: ${dateLimit}`);
+  console.log('Fetching recent clients...')
+  const { daysPast = 7 } = req.query
+  const dateLimit = new Date(Date.now() - daysPast * 24 * 60 * 60 * 1000)
+  console.log(`Date limit set to: ${dateLimit}`)
 
   try {
-    const recentClients = await Client.find({ createdAt: { $gte: dateLimit } });
-    console.log(`Found ${recentClients.length} clients`);
+    const recentClients = await Client.find({ createdAt: { $gte: dateLimit } })
+    console.log(`Found ${recentClients.length} clients`)
 
     if (recentClients.length === 0) {
       return res.status(404).json({
         message: 'No recent clients found within the specified time frame.',
-      });
+      })
     }
-    res.status(200).json(recentClients);
+    res.status(200).json(recentClients)
   } catch (err) {
-    console.error('Error fetching recent clients:', err);
+    console.error('Error fetching recent clients:', err)
     res.status(500).json({
       message: 'Error retrieving recent clients',
       error: err.message,
-    });
+    })
   }
 }
-
 
 exports.getClientById = async (req, res) => {
   try {
