@@ -16,16 +16,17 @@ const app = express()
 
 app.use(helmet())
 
-app.use(
-  cors({
-    origin: [
-      'https://localhost:5173'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Auth-Token', 'Origin', 'Client-Security-Token', 'Accept', 'Access-Control-Allow-Origin'],
-  })
-)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://localhost:5173');
+  next();
+});
+
+app.use(cors({
+  origin: 'https://localhost:5173',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Auth-Token', 'Origin', 'Client-Security-Token', 'Accept'],
+}));
 
 app.use(bodyParser.json())
 connectToDb()
