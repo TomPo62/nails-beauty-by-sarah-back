@@ -60,6 +60,44 @@ exports.deleteClient = async (req,res)=>{
   }
 }
 
+exports.getTopClients = async (req, res) => {
+  try {
+    const topClients = await Client.aggregate([
+      {
+        $lookup: {
+          from: 'appointments',
+          localField: 'history',
+          foreignField: '_id',
+          as: 'appointmentsDetails'
+        }
+      },
+      {
+        $addFields: {
+          pastAppointmentsCount: {
+            $size: {
+              $filter: {
+                input: "$appointmentsDetails",
+                as: "appointment",
+                cond: { $lt: ["$$appointment.date", new Date()] }
+              }
+            }
+          }
+        }
+      },
+      { $sort: { pastAppointmentsCount: -1 } },
+      { $limit: 3 }
+    ]);
+
+    res.json(topClients);
+  } catch (err) {
+    res.status(500).json({
+      message: 'Error retrieving top clients',
+      error: err.message,
+    });
+  }
+};
+
+
 exports.getAllClients = async (req, res) => {
   const { page = 1, limit = 10, name, nearestDate } = req.query
   const options = {
