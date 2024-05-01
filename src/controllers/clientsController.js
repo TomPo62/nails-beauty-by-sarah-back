@@ -45,6 +45,21 @@ exports.updateClient = async (req, res) => {
   }
 }
 
+exports.deleteClient = async (req,res)=>{
+  try {
+    const client = await Client.findByIdAndDelete(req.params.id)
+    if(!client){
+      return res.status(404).json({message: 'Client not found'})
+    }
+    res.status(200).json({message: 'Client deleted successfully'})
+  } catch (err) {
+    res.status(500).json({
+      message: 'Error deleting client',
+      error:err.message
+    })
+  }
+}
+
 exports.getAllClients = async (req, res) => {
   const { page = 1, limit = 10, name, nearestDate } = req.query
   const options = {
