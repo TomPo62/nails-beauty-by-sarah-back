@@ -5,8 +5,16 @@ const materialSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   costPerUnit: { type: Number, min: 0, required: true },
   unit: { type: String, required: true },
-  quantity: { type: Number, min: 0, required: true },
   description: { type: String, trim: true },
+  category: {type: String, required: true},
+  supplier:{
+    name: String,
+    contact: String,
+    notes: String
+  },
+  stock: {type: mongoose.Schema.Types.ObjectId, ref: 'Stock'}
+}, {
+  timestamps: true
 })
 
 materialSchema.plugin(mongoosePaginate)

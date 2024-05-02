@@ -1,5 +1,7 @@
 const Material = require('../models/material')
+const Stock = require('../models/stock')
 const { validationResult } = require('express-validator')
+const mongoose = require('mongoose')
 
 exports.createMaterial = async (req, res) => {
   const errors = validationResult(req)
@@ -7,18 +9,44 @@ exports.createMaterial = async (req, res) => {
     return res.status(400).json({ errors: errors.array() })
   }
 
+  const session = await mongoose.startSession()
+  session.startTransaction()
+
   try {
-    const { name, costPerUnit, unit, quantity, description } = req.body
+    const {
+      name,
+      costPerUnit,
+      unit,
+      description,
+      category,
+      supplier,
+      initialStock,
+    } = req.body
     const material = new Material({
       name,
       costPerUnit,
       unit,
-      quantity,
       description,
+      category,
+      supplier,
     })
-    await material.save()
-    res.status(201).send(material)
+
+    const savedMaterial = await material.save({ session })
+
+    if (initialStock !== undefined) {
+      const stock = new Stock({
+        material: savedMaterial._id,
+        quantity: initialStock,
+      })
+      await stock.save({ session })
+    }
+
+    await session.commitTransaction()
+    session.endSession()
+    res.status(201).send(savedMaterial)
   } catch (err) {
+    await session.abortTransaction()
+    session.endSession()
     res.status(400).send(err)
   }
 }
@@ -40,7 +68,7 @@ exports.getAllMaterials = async (req, res) => {
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
     sort: { [sortBy]: order === 'asc' ? 1 : -1 },
-    populate: [],
+    populate: ['stock'],
   }
 
   const filterOptions = {}
@@ -86,7 +114,7 @@ exports.updateMaterial = async (req, res) => {
 
 exports.getMaterialById = async (req, res) => {
   try {
-    const material = await Material.findById(req.params.id)
+    const material = await Material.findById(req.params.id).populate('stock')
     if (!material) {
       return res.status(404).send()
     }

@@ -27,12 +27,15 @@ const materialsRoutes = require('./routes/materialsRoutes')
 const servicesRoutes = require('./routes/servicesRoutes')
 const clientsRoutes = require('./routes/clientsRoutes')
 const appointmentsRoutes = require('./routes/appointmentsRoutes')
+const stocksRoutes = require('./routes/stocksRoutes')
+
 
 app.use('/api', authRoutes)
 app.use('/api/materials', materialsRoutes)
 app.use('/api/services', servicesRoutes)
 app.use('/api/clients', clientsRoutes)
 app.use('/api/appointments', appointmentsRoutes)
+app.use('/api/stocks', stocksRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
