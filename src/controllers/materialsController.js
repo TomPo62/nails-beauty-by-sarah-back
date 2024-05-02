@@ -21,6 +21,7 @@ exports.createMaterial = async (req, res) => {
       category,
       supplier,
       initialStock,
+      minimumRequired,
     } = req.body
     const material = new Material({
       name,
@@ -37,6 +38,7 @@ exports.createMaterial = async (req, res) => {
       const stock = new Stock({
         material: savedMaterial._id,
         quantity: initialStock,
+        minimumRequired: minimumRequired
       })
       await stock.save({ session })
     }

@@ -3,6 +3,14 @@ const Stock = require('../models/stock')
 exports.updateStock = async (req, res)=>{
   const {materialId, quantity, minimumRequired}= req.body
 
+  if (req.body.initialStock) {
+    req.body.initialStock = Number(req.body.initialStock);
+  }
+  if (req.body.minimumRequired) {
+    req.body.minimumRequired = Number(req.body.minimumRequired);
+  }
+
+
   try {
     const updatedStock = await Stock.findOneAndUpdate(
       {material: materialId},
