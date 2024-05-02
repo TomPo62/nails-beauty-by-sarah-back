@@ -57,8 +57,8 @@ exports.getAllMaterials = async (req, res) => {
   const {
     page = 1,
     limit = 10,
-    sortBy = 'name',
-    order = 'asc',
+    sortBy = 'createdAt',
+    order = 'desc',
     name,
     unit,
     description,
