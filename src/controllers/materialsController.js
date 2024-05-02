@@ -16,6 +16,7 @@ exports.createMaterial = async (req, res) => {
     const {
       name,
       costPerUnit,
+      contentQuantity,
       unit,
       description,
       category,
@@ -26,6 +27,7 @@ exports.createMaterial = async (req, res) => {
     const material = new Material({
       name,
       costPerUnit,
+      contentQuantity,
       unit,
       description,
       category,
