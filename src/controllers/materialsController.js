@@ -36,13 +36,16 @@ exports.createMaterial = async (req, res) => {
 
     const savedMaterial = await material.save({ session })
 
+    let savedStock = null
     if (initialStock !== undefined) {
       const stock = new Stock({
         material: savedMaterial._id,
         quantity: initialStock,
         minimumRequired: minimumRequired
       })
-      await stock.save({ session })
+      savedStock = await stock.save({ session });
+      savedMaterial.stock = savedStock._id; 
+      await savedMaterial.save({ session });
     }
 
     await session.commitTransaction()
