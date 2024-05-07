@@ -44,7 +44,7 @@ exports.createMaterial = async (req, res) => {
         minimumRequired: minimumRequired
       })
       savedStock = await stock.save({ session });
-      savedMaterial.stock = savedStock._id; 
+      savedMaterial.stock = savedStock._id;
       await savedMaterial.save({ session });
     }
 
@@ -67,6 +67,7 @@ exports.getAllMaterials = async (req, res) => {
     name,
     unit,
     description,
+    category,
     minCost,
     maxCost,
   } = req.query
@@ -82,6 +83,7 @@ exports.getAllMaterials = async (req, res) => {
   if (name) filterOptions.name = new RegExp(name, 'i')
   if (unit) filterOptions.unit = unit
   if (description) filterOptions.description = new RegExp(description, 'i')
+  if (category) filterOptions.category = category
   if (minCost) filterOptions.costPerUnit = { $gte: parseFloat(minCost) }
   if (maxCost)
     filterOptions.costPerUnit = {
