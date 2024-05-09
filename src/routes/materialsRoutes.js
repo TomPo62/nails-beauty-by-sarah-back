@@ -9,7 +9,7 @@ router.post(
   materialsController.createMaterial
 )
 
-router.delete('/:id', materialsController.deleteMaterial)
+
 
 
 router.put(
@@ -24,4 +24,5 @@ router.get('/', materialsController.getAllMaterials)
 router.get('/:id', materialsController.getMaterialById)
 
 
+router.delete('/:id', materialsController.deleteMaterial)
 module.exports = router
