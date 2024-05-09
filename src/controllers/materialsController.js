@@ -106,18 +106,24 @@ exports.deleteMaterial = async (req, res) => {
   session.startTransaction();
 
   try {
+    console.log('Finding material with id:', req.params.id);
     const material = await Material.findById(req.params.id).session(session);
     if (!material) {
+      console.log('Material not found');
       await session.abortTransaction();
       session.endSession();
       return res.status(404).json({ message: 'Material not found' });
     }
 
+    console.log('Material found, deleting stock:', material.stock);
     if (material.stock) {
       await Stock.findByIdAndDelete(material.stock).session(session);
+      console.log('Stock delete result:', deleteStockResult);
     }
 
+    console.log('Deleting material');
     await material.remove();
+    console.log('Material deleted successfully');
 
     await session.commitTransaction();
     session.endSession();
