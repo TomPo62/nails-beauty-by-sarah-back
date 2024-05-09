@@ -8,13 +8,17 @@ router.post(
   validateMaterialCreation,
   materialsController.createMaterial
 )
+
+router.delete('/:id', materialsController.deleteMaterial)
+
+
 router.put(
   '/:id',
  validateMaterialUpdate,
   materialsController.updateMaterial
 )
 
-router.delete('/:id', materialsController.deleteMaterial)
+
 
 router.get('/', materialsController.getAllMaterials)
 router.get('/:id', materialsController.getMaterialById)
