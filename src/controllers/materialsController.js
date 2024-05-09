@@ -102,41 +102,34 @@ exports.getAllMaterials = async (req, res) => {
 }
 
 exports.deleteMaterial = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    console.log('Finding material with id:', req.params.id);
-    const material = await Material.findById(req.params.id).session(session);
+    const material = await Material.findById(req.params.id)
     if (!material) {
-      console.log('Material not found');
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(404).json({ message: 'Material not found' });
+      return res.status(404).json({ message: 'Material not found' })
     }
-
-    console.log('Material found, deleting stock:', material.stock);
     if (material.stock) {
-      await Stock.findByIdAndDelete(material.stock).session(session);
-      console.log('Stock delete result:', deleteStockResult);
+      const stock = await Stock.findById(material.stock)
+      if (!stock) {
+        console.log('Stock not found for material:', material._id)
+      } else {
+        await stock.remove()
+      }
     }
-
-    console.log('Deleting material');
-    await material.remove();
-    console.log('Material deleted successfully');
-
-    await session.commitTransaction();
-    session.endSession();
-    res.status(200).json({ message: 'Material and corresponding stock deleted successfully' });
+    await material.remove()
+    res
+      .status(200)
+      .json({
+        message: 'Material and corresponding stock deleted successfully',
+      })
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
+    console.log('Error during delete operation:', err)
     res.status(500).json({
-      message: 'Error deleting material and stock',
-      error: err.message
-    });
+      message: 'Failed to delete material',
+      error: err.message,
+    })
   }
-};
+}
+
 exports.updateMaterial = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
