@@ -41,11 +41,11 @@ exports.createMaterial = async (req, res) => {
       const stock = new Stock({
         material: savedMaterial._id,
         quantity: initialStock,
-        minimumRequired: minimumRequired
+        minimumRequired: minimumRequired,
       })
-      savedStock = await stock.save({ session });
-      savedMaterial.stock = savedStock._id;
-      await savedMaterial.save({ session });
+      savedStock = await stock.save({ session })
+      savedMaterial.stock = savedStock._id
+      await savedMaterial.save({ session })
     }
 
     await session.commitTransaction()
@@ -108,10 +108,27 @@ exports.updateMaterial = async (req, res) => {
   }
 
   try {
-    const material = await Material.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    })
+    const updatedData = { ...req.body }
+    if (req.body.stock) {
+      await Stock.findByIdAndUpdate(
+        req.body.stock._id,
+        {
+          quantity: req.body.stock.quantity,
+          minimumRequired: req.body.stock.minimumRequired,
+        },
+        { new: true }
+      )
+    }
+
+    const material = await Material.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      {
+        new: true,
+        runValidators: true,
+        populate: 'stock',
+      }
+    )
     if (!material) {
       return res.status(404).send()
     }
