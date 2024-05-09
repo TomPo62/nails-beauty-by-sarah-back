@@ -24,5 +24,5 @@ router.get('/', materialsController.getAllMaterials)
 router.get('/:id', materialsController.getMaterialById)
 
 
-router.delete('/:id', materialsController.deleteMaterial)
+router.delete('/del/:id', materialsController.deleteMaterial)
 module.exports = router
