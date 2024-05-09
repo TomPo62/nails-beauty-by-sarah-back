@@ -101,6 +101,36 @@ exports.getAllMaterials = async (req, res) => {
   }
 }
 
+exports.deleteMaterial = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const material = await Material.findById(req.params.id).session(session);
+    if (!material) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: 'Material not found' });
+    }
+
+    if (material.stock) {
+      await Stock.findByIdAndDelete(material.stock).session(session);
+    }
+
+    await material.remove();
+
+    await session.commitTransaction();
+    session.endSession();
+    res.status(200).json({ message: 'Material and corresponding stock deleted successfully' });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({
+      message: 'Error deleting material and stock',
+      error: err.message
+    });
+  }
+};
 exports.updateMaterial = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {

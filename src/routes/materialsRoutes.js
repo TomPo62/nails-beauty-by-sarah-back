@@ -14,6 +14,8 @@ router.put(
   materialsController.updateMaterial
 )
 
+router.delete('/:id', materialsController.deleteMaterial)
+
 router.get('/', materialsController.getAllMaterials)
 router.get('/:id', materialsController.getMaterialById)
 
