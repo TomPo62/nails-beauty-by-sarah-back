@@ -13,8 +13,6 @@ const validateMaterialCreation = [
   body('supplier.name').optional().trim(),
   body('supplier.contact').optional().trim(),
   body('supplier.notes').optional().trim(),
-  body('stock.quantity', 'Stock quantity must be a number').optional().isNumeric(),
-  body('stock.minimumRequired', 'Minimum required must be a number').optional().isNumeric(),
 ]
 
 const validateMaterialUpdate = [
@@ -27,9 +25,6 @@ const validateMaterialUpdate = [
   body('supplier.name').optional().trim(),
   body('supplier.contact').optional().trim(),
   body('supplier.notes').optional().trim(),
-  body('stock').optional().isArray(),
-  body('stock.quantity', 'Stock quantity must be a number').optional().isNumeric(),
-  body('stock.minimumRequired', 'Minimum required must be a number').optional().isNumeric(),
 ]
 
 module.exports = {
