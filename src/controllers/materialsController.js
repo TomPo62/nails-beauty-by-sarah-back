@@ -101,39 +101,17 @@ exports.getAllMaterials = async (req, res) => {
   }
 }
 
-exports.deleteMaterial = async (req, res) => {
+exports.deleteMaterial = async (req,res)=>{
   try {
-    console.log(
-      `Attempting to find and delete material with ID: ${req.params.id}`
-    )
-    const material = await Material.findById(req.params.id)
-    if (!material) {
-      console.log('Material not found')
-      return res.status(404).json({ message: 'Material not found' })
+    const material = await Material.findByIdAndDelete(req.params.id)
+    if(!material){
+      return res.status(404).json({message: 'Material not found'})
     }
-    console.log(`Material found: ${material._id}, checking stock...`)
-    if (material.stock) {
-      console.log(`Stock ID found: ${material.stock}, attempting to delete...`)
-      const stock = await Stock.findById(material.stock)
-      if (stock) {
-        await stock.remove()
-        console.log('Stock deleted successfully')
-      } else {
-        console.log('No stock found to delete')
-      }
-    }
-    await material.remove()
-    console.log('Material deleted successfully')
-    res
-      .status(200)
-      .json({
-        message: 'Material and corresponding stock deleted successfully',
-      })
+    res.status(200).json({message: 'Material deleted successfully'})
   } catch (err) {
-    console.log('Error during delete operation:', err)
     res.status(500).json({
-      message: 'Failed to delete material',
-      error: err.message,
+      message: 'Error deleting material',
+      error:err.message
     })
   }
 }
