@@ -10,7 +10,7 @@ function getJwtMiddleware(jwtSecretToken) {
       }
       return null
     },
-  }).unless({ path: ['/api/login', '/api/logout'] })
+  }).unless({ path: ['/api/login', '/api/logout', '/'] })
 }
 
 module.exports = getJwtMiddleware

@@ -39,12 +39,17 @@ const clientsRoutes = require('./routes/clientsRoutes')
 const appointmentsRoutes = require('./routes/appointmentsRoutes')
 const stocksRoutes = require('./routes/stocksRoutes')
 
+
 app.use('/api', authRoutes)
 app.use('/api/materials', materialsRoutes)
 app.use('/api/services', servicesRoutes)
 app.use('/api/clients', clientsRoutes)
 app.use('/api/appointments', appointmentsRoutes)
 app.use('/api/stocks', stocksRoutes)
+
+app.get('/', (req, res)=>{
+  res.status(200).send({message: 'API On!'})
+})
 
 app.use((err, req, res, next) => {
   console.error(err.stack)
