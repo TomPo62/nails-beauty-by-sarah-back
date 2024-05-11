@@ -10,9 +10,20 @@ const app = express()
 
 app.use(helmet())
 
+const allowedOrigins = ['https://localhost:5173', 'https://localhost:4173']
+if (process.env.NODE_ENV === 'production') {
+  allowedOrigins.push(process.env.DOMAIN)
+}
+
 app.use(
   cors({
-    origin: ['https://localhost:4173'],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
