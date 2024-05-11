@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "build": "echo 'No build needed for this project'"
+    "start": "node src/server.js"
   },
   "license": "MIT",
   "dependencies": {
