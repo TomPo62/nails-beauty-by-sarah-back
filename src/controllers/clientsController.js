@@ -29,19 +29,21 @@ exports.updateClient = async (req, res) => {
   const updateData = req.body
 
   try {
-    const client = await Client.findByIdAndUpdate(clientId, updateData, {
+    let client = await Client.findByIdAndUpdate(clientId, updateData, {
       new: true,
       runValidators: true,
-    }).populate({
+    })
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' })
+    }
+
+    client = await Client.findById(client._id).populate({
       path: 'history',
       populate: {
         path: 'service',
         populate: { path: 'materials.material' },
       },
     })
-    if (!client) {
-      return res.status(404).json({ message: 'Client not found' })
-    }
     res.status(200).json(client)
   } catch (err) {
     res
