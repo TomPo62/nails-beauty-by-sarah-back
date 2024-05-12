@@ -34,9 +34,9 @@ exports.updateClient = async (req, res) => {
       runValidators: true,
     }).populate({
       path: 'history',
-      populate: {
-        path: 'service',
-      },
+      populate: [
+        { path: 'service', populate: { path: 'materials.material' } }
+      ]
     })
     if (!client) {
       return res.status(404).json({ message: 'Client not found' })
