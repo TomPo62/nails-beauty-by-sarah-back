@@ -41,7 +41,6 @@ exports.updateClient = async (req, res) => {
         path: 'history',
         populate: { path: 'service' },
       })
-      .execPopulate()
     res.status(200).json(client)
   } catch (err) {
     res
