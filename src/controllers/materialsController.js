@@ -101,29 +101,11 @@ exports.getAllMaterials = async (req, res) => {
   }
 }
 
-//Work !!
-// exports.deleteMaterial = async (req,res)=>{
-//   try {
-//     const material = await Material.findByIdAndDelete(req.params.id)
-//     if(!material){
-//       return res.status(404).json({message: 'Material not found'})
-//     }
-//     res.status(200).json({message: 'Material deleted successfully'})
-//   } catch (err) {
-//     res.status(500).json({
-//       message: 'Error deleting material',
-//       error:err.message
-//     })
-//   }
-// }
 
-
-//Test
 exports.deleteMaterial = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    // Find the material with the provided ID.
     const material = await Material.findById(req.params.id).session(session);
     if (!material) {
       await session.abortTransaction();
@@ -136,15 +118,12 @@ exports.deleteMaterial = async (req, res) => {
       await Stock.findByIdAndDelete(material.stock).session(session);
     }
 
-    // Now delete the material.
     await Material.findByIdAndDelete(req.params.id).session(session);
 
-    // Commit transaction and end session.
     await session.commitTransaction();
     session.endSession();
     res.status(200).json({ message: 'Material and corresponding stock deleted successfully' });
   } catch (err) {
-    // If an error occurs, abort the transaction and log the error.
     await session.abortTransaction();
     session.endSession();
     console.error('Failed to delete material and stock:', err);
