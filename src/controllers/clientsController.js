@@ -22,7 +22,7 @@ exports.createClient = async (req, res) => {
 exports.updateClient = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    console.log(errors.array());
+    console.log(errors.array())
     return res.status(400).json({ errors: errors.array() })
   }
   const clientId = req.params.id
@@ -36,7 +36,12 @@ exports.updateClient = async (req, res) => {
     if (!client) {
       return res.status(404).json({ message: 'Client not found' })
     }
-
+    client = await client
+      .populate({
+        path: 'history',
+        populate: { path: 'service' },
+      })
+      .execPopulate()
     res.status(200).json(client)
   } catch (err) {
     res
@@ -45,17 +50,17 @@ exports.updateClient = async (req, res) => {
   }
 }
 
-exports.deleteClient = async (req,res)=>{
+exports.deleteClient = async (req, res) => {
   try {
     const client = await Client.findByIdAndDelete(req.params.id)
-    if(!client){
-      return res.status(404).json({message: 'Client not found'})
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' })
     }
-    res.status(200).json({message: 'Client deleted successfully'})
+    res.status(200).json({ message: 'Client deleted successfully' })
   } catch (err) {
     res.status(500).json({
       message: 'Error deleting client',
-      error:err.message
+      error: err.message,
     })
   }
 }
@@ -68,35 +73,34 @@ exports.getTopClients = async (req, res) => {
           from: 'appointments',
           localField: 'history',
           foreignField: '_id',
-          as: 'appointmentsDetails'
-        }
+          as: 'appointmentsDetails',
+        },
       },
       {
         $addFields: {
           pastAppointmentsCount: {
             $size: {
               $filter: {
-                input: "$appointmentsDetails",
-                as: "appointment",
-                cond: { $lt: ["$$appointment.date", new Date()] }
-              }
-            }
-          }
-        }
+                input: '$appointmentsDetails',
+                as: 'appointment',
+                cond: { $lt: ['$$appointment.date', new Date()] },
+              },
+            },
+          },
+        },
       },
       { $sort: { pastAppointmentsCount: -1 } },
-      { $limit: 3 }
-    ]);
+      { $limit: 3 },
+    ])
 
-    res.json(topClients);
+    res.json(topClients)
   } catch (err) {
     res.status(500).json({
       message: 'Error retrieving top clients',
       error: err.message,
-    });
+    })
   }
-};
-
+}
 
 exports.getAllClients = async (req, res) => {
   const { page = 1, limit = 10, name, nearestDate } = req.query
