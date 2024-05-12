@@ -29,7 +29,7 @@ exports.updateClient = async (req, res) => {
   const updateData = req.body
 
   try {
-    const client = await Client.findByIdAndUpdate(clientId, updateData, {
+    let client = await Client.findByIdAndUpdate(clientId, updateData, {
       new: true,
       runValidators: true,
     })
