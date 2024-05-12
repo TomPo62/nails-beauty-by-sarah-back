@@ -33,17 +33,16 @@ exports.updateClient = async (req, res) => {
       new: true,
       runValidators: true,
     })
-    if (!client) {
-      return res.status(404).json({ message: 'Client not found' })
-    }
 
-    client = await Client.findById(client._id).populate({
+    client = await Client.findById(clientId).populate({
       path: 'history',
       populate: {
         path: 'service',
-        populate: { path: 'materials.material' },
       },
     })
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' })
+    }
     res.status(200).json(client)
   } catch (err) {
     res
