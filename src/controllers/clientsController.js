@@ -137,6 +137,9 @@ exports.getRecentClients = async (req, res) => {
 
   try {
     const recentClients = await Client.find({ createdAt: { $gte: dateLimit } })
+      .sort({ createdAt: -1 })
+      .limit(3)
+
     console.log(`Found ${recentClients.length} clients`)
 
     if (recentClients.length === 0) {
