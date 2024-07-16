@@ -15,16 +15,15 @@ app.use(
     origin: ['https://nails-beauty-by-sarah-front.vercel.app/'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    // allowedHeaders: [
-    //   'Content-Type',
-    //   'Authorization',
-    //   'X-Requested-With',
-    //   'X-Auth-Token',
-    //   'Origin',
-    //   'Client-Security-Token',
-    //   'Accept',
-    // ],
-
+     allowedHeaders: [
+       'Content-Type',
+       'Authorization',
+       'X-Requested-With',
+       'X-Auth-Token',
+       'Origin',
+       'Client-Security-Token',
+       'Accept',
+     ],
   })
 )
 
