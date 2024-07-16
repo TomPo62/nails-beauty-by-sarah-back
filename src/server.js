@@ -12,7 +12,7 @@ app.use(helmet())
 
 app.use(
   cors({
-    origin: ['https://localhost:5173', 'http://localhost:4173'],
+    origin: ['https://nails-beauty-by-sarah-front.vercel.app/'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     // allowedHeaders: [
